@@ -43,6 +43,8 @@ func ValidateNetworkConfig(networkConfig *apiscalico.NetworkConfig, ipFamilies [
 
 	allErrs = append(allErrs, ValidateServiceLoopPrevention(networkConfig.ServiceLoopPrevention, fldPath.Child("serviceLoopPrevention"))...)
 
+	allErrs = append(allErrs, ValidateBGP(networkConfig.BGP, networkConfig.Backend, fldPath.Child("bgp"))...)
+
 	if networkConfig.IPIP != nil && !sets.New(apiscalico.Always, apiscalico.Never, apiscalico.CrossSubnet, apiscalico.Off).Has(*networkConfig.IPIP) {
 		allErrs = append(allErrs, field.Invalid(fldPath.Child("ipip"), *networkConfig.IPIP, fmt.Sprintf("unsupported value %q for ipip, supported values are [%q, %q, %q, %q]", *networkConfig.IPIP, apiscalico.Always, apiscalico.Never, apiscalico.CrossSubnet, apiscalico.Off)))
 	}
@@ -241,6 +243,31 @@ func ValidateServiceLoopPrevention(serviceLoopPrevention *apiscalico.ServiceLoop
 	allowedValues := sets.New(apiscalico.ServiceLoopPreventionDisabled, apiscalico.ServiceLoopPreventionDrop, apiscalico.ServiceLoopPreventionReject)
 	if !allowedValues.Has(*serviceLoopPrevention) {
 		allErrs = append(allErrs, field.Invalid(fldPath, *serviceLoopPrevention, fmt.Sprintf("unsupported value %q for serviceLoopPrevention, supported values are [%q, %q, %q]", *serviceLoopPrevention, apiscalico.ServiceLoopPreventionDisabled, apiscalico.ServiceLoopPreventionDrop, apiscalico.ServiceLoopPreventionReject)))
+	}
+
+	return allErrs
+}
+
+// ValidateBGP validates the BGP section of the network config.
+func ValidateBGP(bgp *apiscalico.BGP, backend *apiscalico.Backend, fldPath *field.Path) field.ErrorList {
+	allErrs := field.ErrorList{}
+
+	if bgp == nil {
+		return allErrs
+	}
+
+	// BGP only takes effect with the bird backend. Reject configurations that the user is
+	// likely misreading as effective.
+	if backend != nil && *backend != apiscalico.Bird {
+		allErrs = append(allErrs, field.Forbidden(fldPath, fmt.Sprintf("bgp configuration only applies when backend is %q", apiscalico.Bird)))
+	}
+
+	if bgp.ASNumber != nil {
+		// RFC 4893 / IANA: 16-bit (1..65534, reserving 65535) and 32-bit private (4200000000..4294967294).
+		// Calico accepts the full 32-bit range; reject only obviously invalid (<=0 or 0).
+		if *bgp.ASNumber <= 0 {
+			allErrs = append(allErrs, field.Invalid(fldPath.Child("asNumber"), *bgp.ASNumber, "AS number must be positive"))
+		}
 	}
 
 	return allErrs

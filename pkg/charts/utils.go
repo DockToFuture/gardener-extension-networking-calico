@@ -263,7 +263,33 @@ func ComputeCalicoChartValues(
 		calicoChartValues["autoscaling"].(map[string]interface{})["staticRequests"] = strconv.FormatBool(true)
 		calicoChartValues["autoscaling"].(map[string]interface{})["resourceRequests"] = calculateResourceRequests(config.AutoScaling.Resources)
 	}
+
+	if bgpValues := bgpChartValues(config); bgpValues != nil {
+		calicoChartValues["bgp"] = bgpValues
+	}
+
 	return calicoChartValues, nil
+}
+
+// bgpChartValues returns the bgp section for the calico chart values, or nil when the
+// providerConfig does not opt into BGP management. When opted in, the extension renders
+// a default BGPConfiguration; otherwise the cluster's BGPConfiguration is left untouched
+// and Calico's full-mesh default applies.
+func bgpChartValues(config *calicov1alpha1.NetworkConfig) map[string]interface{} {
+	if config == nil || config.BGP == nil {
+		return nil
+	}
+	values := map[string]interface{}{
+		"manage":                true,
+		"nodeToNodeMeshEnabled": true,
+	}
+	if config.BGP.NodeToNodeMeshEnabled != nil {
+		values["nodeToNodeMeshEnabled"] = *config.BGP.NodeToNodeMeshEnabled
+	}
+	if config.BGP.ASNumber != nil {
+		values["asNumber"] = *config.BGP.ASNumber
+	}
+	return values
 }
 
 func generateChartValues(network *extensionsv1alpha1.Network, config *calicov1alpha1.NetworkConfig, kubeProxyEnabled bool, kubeProxyMode *v1beta1.ProxyMode, nonPrivileged bool, ipFamilies []extensionsv1alpha1.IPFamily) (*calicoConfig, error) {

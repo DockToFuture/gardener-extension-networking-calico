@@ -144,6 +144,24 @@ type NetworkConfig struct {
 
 	// ServiceLoopPrevention configures the Felix service loop prevention option.
 	ServiceLoopPrevention *ServiceLoopPrevention `json:"serviceLoopPrevention,omitempty"`
+
+	// BGP configures Calico's BGP routing layer. Only effective when Backend is "bird".
+	// +optional
+	BGP *BGP `json:"bgp,omitempty"`
+}
+
+// BGP configures Calico's BGP routing layer.
+type BGP struct {
+	// NodeToNodeMeshEnabled controls whether every node peers with every other node (full mesh).
+	// When false, the operator is responsible for establishing BGPPeer resources, otherwise
+	// pod traffic between nodes will be black-holed.
+	// Defaults to true (full mesh) for backwards compatibility.
+	// +optional
+	NodeToNodeMeshEnabled *bool `json:"nodeToNodeMeshEnabled,omitempty"`
+	// ASNumber is the AS number used by every node when NodeToNodeMeshEnabled is true,
+	// and by route reflectors otherwise. Defaults to 64512 if unset.
+	// +optional
+	ASNumber *int32 `json:"asNumber,omitempty"`
 }
 
 type ServiceLoopPrevention string

@@ -5,6 +5,14 @@ global:
   overlayEnabled: ""
   snatToUpstreamDNSEnabled: ""
   vxlanEnabled: ""
+
+bgp:
+  # manage indicates whether the extension renders the default BGPConfiguration.
+  # Set to true when the providerConfig opts into managing BGP topology; otherwise the
+  # extension leaves the cluster's BGPConfiguration untouched (Calico defaults: full mesh).
+  manage: false
+  nodeToNodeMeshEnabled: true
+  # asNumber: 64512  # Only set when overridden via providerConfig
 config:
   veth_mtu: 1440
   backend: bird

@@ -124,6 +124,20 @@ type NetworkConfig struct {
 
 	// ServiceLoopPrevention configures the Felix service loop prevention option.
 	ServiceLoopPrevention *ServiceLoopPrevention
+
+	// BGP configures Calico's BGP routing layer. Only effective when Backend is "bird".
+	BGP *BGP
+}
+
+// BGP configures Calico's BGP routing layer.
+type BGP struct {
+	// NodeToNodeMeshEnabled controls whether every node peers with every other node (full mesh).
+	// When false, the operator must establish BGPPeer resources, otherwise pod traffic between
+	// nodes will be black-holed. Defaults to true (full mesh) for backwards compatibility.
+	NodeToNodeMeshEnabled *bool
+	// ASNumber is the AS number used by every node when NodeToNodeMeshEnabled is true,
+	// and by route reflectors otherwise. Defaults to 64512 if unset.
+	ASNumber *int32
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

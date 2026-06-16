@@ -1,0 +1,13 @@
+{{- if .Values.bgp.manage }}
+---
+apiVersion: crd.projectcalico.org/v1
+kind: BGPConfiguration
+metadata:
+  name: default
+spec:
+  logSeverityScreen: Info
+  nodeToNodeMeshEnabled: {{ .Values.bgp.nodeToNodeMeshEnabled }}
+{{- if .Values.bgp.asNumber }}
+  asNumber: {{ .Values.bgp.asNumber }}
+{{- end }}
+{{- end }}
