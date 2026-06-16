@@ -480,6 +480,7 @@ func Convert_calico_VXLAN_To_v1alpha1_VXLAN(in *calico.VXLAN, out *VXLAN, s conv
 func autoConvert_v1alpha1_BGP_To_calico_BGP(in *BGP, out *calico.BGP, s conversion.Scope) error {
 	out.NodeToNodeMeshEnabled = (*bool)(unsafe.Pointer(in.NodeToNodeMeshEnabled))
 	out.ASNumber = (*int32)(unsafe.Pointer(in.ASNumber))
+	out.RouteReflectors = (*calico.RouteReflectors)(unsafe.Pointer(in.RouteReflectors))
 	return nil
 }
 
@@ -491,6 +492,7 @@ func Convert_v1alpha1_BGP_To_calico_BGP(in *BGP, out *calico.BGP, s conversion.S
 func autoConvert_calico_BGP_To_v1alpha1_BGP(in *calico.BGP, out *BGP, s conversion.Scope) error {
 	out.NodeToNodeMeshEnabled = (*bool)(unsafe.Pointer(in.NodeToNodeMeshEnabled))
 	out.ASNumber = (*int32)(unsafe.Pointer(in.ASNumber))
+	out.RouteReflectors = (*RouteReflectors)(unsafe.Pointer(in.RouteReflectors))
 	return nil
 }
 

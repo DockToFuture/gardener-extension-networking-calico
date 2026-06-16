@@ -270,6 +270,19 @@ func ValidateBGP(bgp *apiscalico.BGP, backend *apiscalico.Backend, fldPath *fiel
 		}
 	}
 
+	if bgp.RouteReflectors != nil {
+		rrPath := fldPath.Child("routeReflectors")
+		if strings.TrimSpace(bgp.RouteReflectors.NodeSelector) == "" {
+			allErrs = append(allErrs, field.Required(rrPath.Child("nodeSelector"), "nodeSelector must be set when routeReflectors is configured"))
+		}
+		// Disabling the full mesh is required for route reflectors to be useful; warn via validation
+		// only when it would clearly produce a black-hole (mesh enabled and RRs configured is benign,
+		// but defaulting RRs without disabling mesh is almost certainly a misconfiguration).
+		if bgp.NodeToNodeMeshEnabled != nil && *bgp.NodeToNodeMeshEnabled {
+			allErrs = append(allErrs, field.Invalid(fldPath.Child("nodeToNodeMeshEnabled"), *bgp.NodeToNodeMeshEnabled, "must be false when routeReflectors is configured"))
+		}
+	}
+
 	return allErrs
 }
 

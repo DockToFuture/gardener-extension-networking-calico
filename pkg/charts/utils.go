@@ -289,6 +289,15 @@ func bgpChartValues(config *calicov1alpha1.NetworkConfig) map[string]interface{}
 	if config.BGP.ASNumber != nil {
 		values["asNumber"] = *config.BGP.ASNumber
 	}
+	if config.BGP.RouteReflectors != nil {
+		rr := map[string]interface{}{
+			"nodeSelector": config.BGP.RouteReflectors.NodeSelector,
+		}
+		if config.BGP.RouteReflectors.ClusterID != nil {
+			rr["clusterID"] = *config.BGP.RouteReflectors.ClusterID
+		}
+		values["routeReflectors"] = rr
+	}
 	return values
 }
 

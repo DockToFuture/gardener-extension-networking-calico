@@ -162,6 +162,22 @@ type BGP struct {
 	// and by route reflectors otherwise. Defaults to 64512 if unset.
 	// +optional
 	ASNumber *int32 `json:"asNumber,omitempty"`
+	// RouteReflectors configures route reflector based partial mesh.
+	// When set, the extension renders BGPPeer resources for client->RR and RR<->RR peerings
+	// based on NodeSelector. Operators must label nodes themselves; node labeling is added
+	// in a follow-up.
+	// +optional
+	RouteReflectors *RouteReflectors `json:"routeReflectors,omitempty"`
+}
+
+// RouteReflectors configures route reflector based partial mesh.
+type RouteReflectors struct {
+	// NodeSelector selects nodes that act as route reflectors. Required when set.
+	// Examples: "route-reflector == 'true'".
+	NodeSelector string `json:"nodeSelector"`
+	// ClusterID is the BGP route reflector cluster ID shared by all RRs. Defaults to 224.0.0.1.
+	// +optional
+	ClusterID *string `json:"clusterID,omitempty"`
 }
 
 type ServiceLoopPrevention string

@@ -138,6 +138,19 @@ type BGP struct {
 	// ASNumber is the AS number used by every node when NodeToNodeMeshEnabled is true,
 	// and by route reflectors otherwise. Defaults to 64512 if unset.
 	ASNumber *int32
+	// RouteReflectors configures route reflector based partial mesh.
+	// When set, the extension renders BGPPeer resources for client->RR and RR<->RR peerings
+	// based on NodeSelector. Operators must label nodes themselves; node labeling is added
+	// in a follow-up.
+	RouteReflectors *RouteReflectors
+}
+
+// RouteReflectors configures route reflector based partial mesh.
+type RouteReflectors struct {
+	// NodeSelector selects nodes that act as route reflectors. Required when set.
+	NodeSelector string
+	// ClusterID is the BGP route reflector cluster ID shared by all RRs. Defaults to 224.0.0.1.
+	ClusterID *string
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

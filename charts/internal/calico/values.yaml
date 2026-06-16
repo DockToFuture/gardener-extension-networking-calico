@@ -13,6 +13,9 @@ bgp:
   manage: false
   nodeToNodeMeshEnabled: true
   # asNumber: 64512  # Only set when overridden via providerConfig
+  # routeReflectors:
+  #   nodeSelector: "route-reflector == 'true'"  # Set to enable BGPPeer rendering
+  #   clusterID: "224.0.0.1"
 config:
   veth_mtu: 1440
   backend: bird
