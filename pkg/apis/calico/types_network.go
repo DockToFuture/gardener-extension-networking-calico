@@ -151,6 +151,11 @@ type RouteReflectors struct {
 	NodeSelector string
 	// ClusterID is the BGP route reflector cluster ID shared by all RRs. Defaults to 224.0.0.1.
 	ClusterID *string
+	// CountPerZone, if set, opts into the managed lifecycle controller: the extension
+	// will select that many nodes per zone, label them, and set routeReflectorClusterID
+	// on the corresponding Calico Node CR. When unset, operators must label nodes themselves.
+	// SCAFFOLD: the lifecycle controller is not yet wired in; setting this is currently a no-op.
+	CountPerZone *int32
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

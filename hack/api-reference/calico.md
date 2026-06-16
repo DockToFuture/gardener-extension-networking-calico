@@ -73,6 +73,68 @@ AutoscalingMode is a type alias for the autoscaling mode string.
 </p>
 
 
+<h3 id="bgp">BGP
+</h3>
+
+
+<p>
+(<em>Appears on:</em><a href="#networkconfig">NetworkConfig</a>)
+</p>
+
+<p>
+BGP configures Calico's BGP routing layer.
+</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+<td>
+<code>nodeToNodeMeshEnabled</code></br>
+<em>
+boolean
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>NodeToNodeMeshEnabled controls whether every node peers with every other node (full mesh).<br />When false, the operator is responsible for establishing BGPPeer resources, otherwise<br />pod traffic between nodes will be black-holed.<br />Defaults to true (full mesh) for backwards compatibility.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>asNumber</code></br>
+<em>
+integer
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>ASNumber is the AS number used by every node when NodeToNodeMeshEnabled is true,<br />and by route reflectors otherwise. Defaults to 64512 if unset.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>routeReflectors</code></br>
+<em>
+<a href="#routereflectors">RouteReflectors</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>RouteReflectors configures route reflector based partial mesh.<br />When set, the extension renders BGPPeer resources for client->RR and RR<->RR peerings<br />based on NodeSelector. Operators must label nodes themselves; node labeling is added<br />in a follow-up.</p>
+</td>
+</tr>
+
+</tbody>
+</table>
+
+
 <h3 id="backend">Backend
 </h3>
 <p><em>Underlying type: string</em></p>
@@ -643,6 +705,18 @@ boolean
 <p>ServiceLoopPrevention configures the Felix service loop prevention option.</p>
 </td>
 </tr>
+<tr>
+<td>
+<code>bgp</code></br>
+<em>
+<a href="#bgp">BGP</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>BGP configures Calico's BGP routing layer. Only effective when Backend is "bird".</p>
+</td>
+</tr>
 
 </tbody>
 </table>
@@ -747,6 +821,67 @@ Resources optionally defines the amount of resources to statically allocate for 
 static resource allocation.
 In case of vertical pod autoscaling with VPA, this field defines the minimum resources to allocate.
 </p>
+
+
+<h3 id="routereflectors">RouteReflectors
+</h3>
+
+
+<p>
+(<em>Appears on:</em><a href="#bgp">BGP</a>)
+</p>
+
+<p>
+RouteReflectors configures route reflector based partial mesh.
+</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+<td>
+<code>nodeSelector</code></br>
+<em>
+string
+</em>
+</td>
+<td>
+<p>NodeSelector selects nodes that act as route reflectors. Required when set.<br />Examples: "route-reflector == 'true'".</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>clusterID</code></br>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>ClusterID is the BGP route reflector cluster ID shared by all RRs. Defaults to 224.0.0.1.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>countPerZone</code></br>
+<em>
+integer
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>CountPerZone, if set, opts into the managed lifecycle controller: the extension<br />will select that many nodes per zone, label them, and set routeReflectorClusterID<br />on the corresponding Calico Node CR. When unset, operators must label nodes themselves.<br />SCAFFOLD: the lifecycle controller is not yet wired in; setting this is currently a no-op.</p>
+</td>
+</tr>
+
+</tbody>
+</table>
 
 
 <h3 id="serviceloopprevention">ServiceLoopPrevention
